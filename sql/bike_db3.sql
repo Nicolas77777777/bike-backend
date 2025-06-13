@@ -51,7 +51,7 @@ CREATE TABLE tipologiche (
 -- Elenco eventi organizzati dall’associazione
 -- Collega ogni evento a una categoria tramite FOREIGN KEY
 
-CREATE TABLE evento (
+CREATE TABLE evento ( 
   id_evento SERIAL PRIMARY KEY,            -- ID evento autoincrementale
   titolo VARCHAR(255) NOT NULL,            -- Titolo evento (obbligatorio)
   categoria INTEGER NOT NULL               -- Collegamento alla categoria (tipologica)
