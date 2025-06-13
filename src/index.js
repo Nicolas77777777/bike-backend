@@ -1,5 +1,7 @@
 // backend/src/index.js
 // importiamo le librerie
+import pool from './db.js';
+
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -40,6 +42,19 @@ server.use('/evento', eventoRoutes); // pronto per estensione
 server.use('/iscrizioni', clienteEventoRoutes);
 server.use('/download', express.static(path.join(__dirname, '../export')));
 
+
+// ✅ Rotta di test connessione DB
+import pool from './db/index.js'; // o './db.js' se il file si chiama così
+
+server.get('/testdb', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ success: true, time: result.rows[0].now });
+  } catch (err) {
+    console.error('❌ Errore connessione DB:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 
 
