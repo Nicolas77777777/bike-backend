@@ -44,7 +44,7 @@ server.use('/download', express.static(path.join(__dirname, '../export')));
 
 
 // ✅ Rotta di test connessione DB
-import pool from './db/index.js'; // o './db.js' se il file si chiama così
+
 
 server.get('/testdb', async (req, res) => {
   try {
