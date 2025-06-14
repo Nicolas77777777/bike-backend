@@ -2,6 +2,14 @@
 // importiamo le librerie
 import pool from './db/db.js';
 
+console.log("DB config attuale:", {
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+
 
 import express from 'express';
 import dotenv from 'dotenv';
