@@ -3,7 +3,10 @@ import { inserisciLogin, controllaLogin } from '../controllers/loginController.j
 
 const router = express.Router();
 
-router.post('/login', inserisciLogin);
+// ✅ CORRETTO: Route che il frontend sta chiamando
 router.post('/controllologin', controllaLogin);
+
+// ✅ OPZIONALE: Per registrare nuovi utenti (solo admin)
+router.post('/registra', inserisciLogin);
 
 export default router;
