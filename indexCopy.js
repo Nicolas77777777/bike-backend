@@ -33,24 +33,21 @@ dotenv.config();
 const server = express();
 const port = process.env.PORT || 3000;
 
-// ✅ CORS configurato per frontend con headers completi
+// ✅ CORS configurato per frontend
 server.use(cors({
-  origin: ['http://localhost:8081', 'http://127.0.0.1:8081'], // Frontend URLs
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  exposedHeaders: ['Content-Disposition', 'Content-Length']
+  origin: 'http://localhost:8081', // Frontend URL
+  credentials: true
 }));
 
 // Middleware per parsing
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
-// ✅ IMPORTANTE: Crea cartella export se non esiste (SOLO PER PDF)
+// ✅ IMPORTANTE: Crea cartella export se non esiste
 const exportPath = path.join(__dirname, '../export');
 if (!fs.existsSync(exportPath)) {
   fs.mkdirSync(exportPath, { recursive: true });
-  console.log('📁 Cartella export creata per PDF:', exportPath);
+  console.log('📁 Cartella export creata:', exportPath);
 }
 
 // ✅ Registriamo le rotte principali

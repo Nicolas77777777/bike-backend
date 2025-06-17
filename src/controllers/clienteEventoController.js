@@ -114,7 +114,7 @@ export async function rimuoviIscrizione(req, res) {
   }
 }
 
-// ✅ EXPORT EXCEL - OTTIMIZZATO E COMPLETO
+// ✅ EXPORT EXCEL - IN MEMORIA (SENZA CARTELLA EXPORT)
 export async function esportaIscrittiEvento(req, res) {
   const { id_evento } = req.params;
 
@@ -156,7 +156,7 @@ export async function esportaIscrittiEvento(req, res) {
 
     console.log(`✅ Evento trovato: "${evento.titolo}" con ${iscritti.length} iscritti`);
 
-    // Crea workbook Excel
+    // Crea workbook Excel IN MEMORIA
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Bike and Hike';
     workbook.created = new Date();
@@ -273,48 +273,34 @@ export async function esportaIscrittiEvento(req, res) {
       sheet.mergeCells('A3:I3');
     }
 
-    // ✅ CREA CARTELLA EXPORT
-    const exportPath = path.join(process.cwd(), 'export');
-    if (!fs.existsSync(exportPath)) {
-      fs.mkdirSync(exportPath, { recursive: true });
-      console.log('📁 Cartella export creata');
-    }
-
-    // ✅ GENERA NOME FILE UNICO
+    // ✅ GENERA NOME FILE
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
-    const filename = `iscritti_evento_${id_evento}_${timestamp}_${Date.now()}.xlsx`;
-    const filePath = path.join(exportPath, filename);
+    const filename = `iscritti_evento_${id_evento}_${timestamp}.xlsx`;
 
-    // ✅ SALVA FILE
-    await workbook.xlsx.writeFile(filePath);
+    // ✅ IMPOSTA HEADER PER DOWNLOAD DIRETTO
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
-    console.log(`✅ File Excel generato: ${filename}`);
-    console.log(`📁 Path completo: ${filePath}`);
+    console.log(`📥 Inizio stream Excel "${filename}" direttamente al client`);
 
-    // ✅ RISPOSTA CON TUTTE LE INFO
-    res.status(200).json({
-      path: `/download/${filename}`,
-      messaggio: 'File Excel generato con successo',
-      filename: filename,
-      evento: {
-        id: evento.id_evento,
-        titolo: evento.titolo,
-        categoria: evento.categoria_descrizione
-      },
-      statistiche: {
-        totale_iscritti: iscritti.length,
-        tessere_valide: iscritti.filter(c => c.stato_tessera === 'Valida').length,
-        tessere_scadute: iscritti.filter(c => c.stato_tessera === 'Scaduta').length
-      },
-      timestamp: new Date().toISOString()
-    });
+    // ✅ STREAM DIRETTO AL CLIENT (SENZA SALVARE SU DISCO)
+    await workbook.xlsx.write(res);
+    res.end();
+
+    console.log(`✅ Download Excel completato per evento ${id_evento}`);
 
   } catch (err) {
     console.error('❌ Errore generazione Excel:', err);
-    res.status(500).json({ 
-      errore: 'Errore nella generazione del file Excel',
-      dettagli: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
+    
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        errore: 'Errore nella generazione del file Excel',
+        dettagli: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
+    }
   }
 }
 
