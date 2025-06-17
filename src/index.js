@@ -33,9 +33,14 @@ dotenv.config();
 const server = express();
 const port = process.env.PORT || 3000;
 
-// ✅ CORS configurato per frontend con headers completi
+// ✅ CORS configurato per RAILWAY + LOCAL
 server.use(cors({
-  origin: ['http://localhost:8081', 'http://127.0.0.1:8081'], // Frontend URLs
+  origin: [
+    'http://localhost:8081', 
+    'http://127.0.0.1:8081',
+    'https://bikefrontend-production.up.railway.app', // ✅ AGGIUNTO RAILWAY!
+    'https://*.up.railway.app' // ✅ WILDCARD per tutti i domini Railway
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
@@ -87,6 +92,21 @@ server.get('/test-export', (req, res) => {
   });
 });
 
+// ✅ TEST ROUTE per debug iscrizioni
+server.get('/iscrizioni/test', (req, res) => {
+  res.json({
+    messaggio: 'Routes iscrizioni funzionanti!',
+    timestamp: new Date().toISOString(),
+    routes_disponibili: [
+      'POST /iscrizioni/iscrivi',
+      'GET /iscrizioni/evento/:id_evento/clienti',
+      'GET /iscrizioni/evento/:id_evento/export',     // ← QUESTA DOVREBBE ESISTERE
+      'GET /iscrizioni/evento/:id_evento/export-pdf',
+      'DELETE /iscrizioni/rimuovi'
+    ]
+  });
+});
+
 // ✅ Error handling globale
 server.use((err, req, res, next) => {
   console.error('❌ Errore server:', err);
@@ -101,4 +121,5 @@ server.listen(port, () => {
   console.log(`✅ Backend in ascolto su http://localhost:${port}`);
   console.log(`📁 Download disponibili su: http://localhost:${port}/download/`);
   console.log(`🔬 Test export: http://localhost:${port}/test-export`);
+  console.log(`🧪 Test iscrizioni: http://localhost:${port}/iscrizioni/test`);
 });
