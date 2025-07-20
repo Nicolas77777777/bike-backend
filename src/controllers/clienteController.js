@@ -114,7 +114,7 @@ export async function listaClienti(req, res) {
     // ✅ Risposta con metadati utili
     const response = {
       clienti: result.rows,
-      totale: result.rowCount,
+      totale: result.rowCount, 
       timestamp: new Date().toISOString(),
       parametri: {
         orderBy,
